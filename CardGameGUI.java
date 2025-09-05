@@ -24,6 +24,7 @@ import java.util.ArrayList;
  */
 public class CardGameGUI extends JFrame implements ActionListener {
 
+
     /** Height of the game frame. */
     private static final int DEFAULT_HEIGHT = 302;
     /** Width of the game frame. */
@@ -134,6 +135,14 @@ public class CardGameGUI extends JFrame implements ActionListener {
             String cardImageFileName =
                 imageFileName(board.cardAt(k), selections[k]);
             URL imageURL = getClass().getResource(cardImageFileName);
+            if (imageURL == null) {
+                // Try the other case extension
+                String altFileName = cardImageFileName.replace(".gif", ".GIF");
+                if (altFileName.equals(cardImageFileName)) {
+                    altFileName = cardImageFileName.replace(".GIF", ".gif");
+                }
+                imageURL = getClass().getResource(altFileName);
+            }
             if (imageURL != null) {
                 ImageIcon icon = new ImageIcon(imageURL);
                 displayCards[k].setIcon(icon);
@@ -160,6 +169,8 @@ public class CardGameGUI extends JFrame implements ActionListener {
         panel = new JPanel() {
             public void paintComponent(Graphics g) {
                 super.paintComponent(g);
+                // Set a subtle gradient background
+                setBackground(Color.decode("#F5F5F5"));
             }
         };
 
@@ -198,50 +209,64 @@ public class CardGameGUI extends JFrame implements ActionListener {
         replaceButton = new JButton();
         replaceButton.setText("Replace");
 
-        // Styling the button
-        replaceButton.setFont(new Font("Calibri", Font.BOLD, 14)); // Set font and size
-        replaceButton.setBackground(Color.decode("#1E90FF"));                // Set background color
-        replaceButton.setForeground(Color.WHITE);               // Set text color
-        replaceButton.setFocusPainted(false);                   // Remove focus border
+        // Enhanced styling for Replace button - Pink theme to match hearts/diamonds
+        replaceButton.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        replaceButton.setBackground(Color.decode("#FF69B4")); // Hot pink
+        replaceButton.setForeground(Color.WHITE);
+        replaceButton.setFocusPainted(false);
+        replaceButton.setBorder(null); // No border
+        replaceButton.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
-        // Keep the same dimensions and add to panel
         panel.add(replaceButton);
-        replaceButton.setBounds(BUTTON_LEFT, BUTTON_TOP, 100, 30);
+        replaceButton.setBounds(BUTTON_LEFT, BUTTON_TOP, 100, 35);
         replaceButton.addActionListener(this);
-
 
         restartButton = new JButton();
         restartButton.setText("Restart");
+        
+        // Enhanced styling for Restart button - Dark theme to match spades/clubs
+        restartButton.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        restartButton.setBackground(Color.decode("#2C2C2C")); // Dark charcoal
+        restartButton.setForeground(Color.WHITE);
+        restartButton.setFocusPainted(false);
+        restartButton.setBorder(null); // No border
+        restartButton.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        
         panel.add(restartButton);
-        restartButton.setBounds(BUTTON_LEFT, BUTTON_TOP + BUTTON_HEIGHT_INC,
-                                        100, 30);
+        restartButton.setBounds(BUTTON_LEFT, BUTTON_TOP + BUTTON_HEIGHT_INC, 100, 35);
         restartButton.addActionListener(this);
 
+        // Calculate Y position for bottom row of cards
+        int bottomRowY = LAYOUT_TOP + LAYOUT_HEIGHT_INC; // Y position of bottom row
+        
         statusMsg = new JLabel(
             board.deckSize() + " undealt cards remain.");
+        statusMsg.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        statusMsg.setForeground(Color.decode("#333333"));
         panel.add(statusMsg);
-        statusMsg.setBounds(LABEL_LEFT, LABEL_TOP, 250, 30);
+        statusMsg.setBounds(BUTTON_LEFT - 100, bottomRowY + 20, 200, 20);
 
         winMsg = new JLabel();
-        winMsg.setBounds(LABEL_LEFT, LABEL_TOP + LABEL_HEIGHT_INC, 200, 30);
-        winMsg.setFont(new Font("SansSerif", Font.BOLD, 25));
-        winMsg.setForeground(Color.GREEN);
-        winMsg.setText("You win!");
+        winMsg.setBounds(BUTTON_LEFT - 100, bottomRowY + 50, 200, 30);
+        winMsg.setFont(new Font("Segoe UI", Font.BOLD, 25));
+        winMsg.setForeground(Color.decode("#4CAF50"));
+        winMsg.setText("🎉 You win! 🎉");
         panel.add(winMsg);
         winMsg.setVisible(false);
 
         lossMsg = new JLabel();
-        lossMsg.setBounds(LABEL_LEFT, LABEL_TOP + LABEL_HEIGHT_INC, 200, 30);
-        lossMsg.setFont(new Font("SanSerif", Font.BOLD, 25));
-        lossMsg.setForeground(Color.RED);
-        lossMsg.setText("Sorry, you lose.");
+        lossMsg.setBounds(BUTTON_LEFT - 100, bottomRowY + 50, 200, 30);
+        lossMsg.setFont(new Font("Segoe UI", Font.BOLD, 25));
+        lossMsg.setForeground(Color.decode("#F44336"));
+        lossMsg.setText("😔 Sorry, you lose.");
         panel.add(lossMsg);
         lossMsg.setVisible(false);
 
         totalsMsg = new JLabel("You've won " + totalWins
             + " out of " + totalGames + " games.");
-        totalsMsg.setBounds(LABEL_LEFT, LABEL_TOP + 2 * LABEL_HEIGHT_INC,
-                                  250, 30);
+        totalsMsg.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        totalsMsg.setForeground(Color.decode("#333333"));
+        totalsMsg.setBounds(BUTTON_LEFT - 100, bottomRowY + 45, 200, 20);
         panel.add(totalsMsg);
 
         if (!board.anotherPlayIsPossible()) {
@@ -274,7 +299,7 @@ public class CardGameGUI extends JFrame implements ActionListener {
      */
     private String imageFileName(Card c, boolean isSelected) {
         if (c == null) {
-            return "sanriocards/back1.GIF";
+            return "sanriocards/back1.gif";
         }
         return "sanriocards/" + c.toString() + (isSelected? "S" : "") + ".GIF";
     }
